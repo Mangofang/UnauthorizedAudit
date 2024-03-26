@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -38,6 +38,11 @@ namespace UnauthorizedAudit
             {
                 string result = a.Replace("\\", "/");
                 string reqpath = web_path + result;
+                if (checkBox1.Checked)
+                {
+                    richTextBox1.AppendText("[DEBUG] [访问目标] " + reqpath + "\n");
+                    richTextBox1.SelectionStart = richTextBox1.Text.Length;
+                }
                 WebRequest webrequest = WebRequest.Create(reqpath);
                 HttpWebResponse res;
                 try
@@ -50,8 +55,11 @@ namespace UnauthorizedAudit
                 }
                 StreamReader sr = new StreamReader(res.GetResponseStream() ?? throw new InvalidOperationException(), Encoding.UTF8);
                 var web_result = sr.ReadToEnd();
-                richTextBox1.AppendText("[DEBUG] [网页返回信息] " + web_result + "\n");
-                richTextBox1.SelectionStart = richTextBox1.Text.Length;
+                if (checkBox1.Checked)
+                {
+                    richTextBox1.AppendText("[DEBUG] [网页返回信息] " + web_result + "\n");
+                    richTextBox1.SelectionStart = richTextBox1.Text.Length;
+                }
                 foreach (string filter in filters)
                 {
                     if (!web_result.Contains(filter))
@@ -94,26 +102,34 @@ namespace UnauthorizedAudit
                 string[] ashxfiles = Directory.GetFiles(folderPath, "*.ashx", SearchOption.AllDirectories);
                 string[] aspfiles = Directory.GetFiles(folderPath, "*.asp", SearchOption.AllDirectories);
                 files = aspxfiles.Concat(aspxfiles).ToArray().Concat(ashxfiles).ToArray().Concat(aspfiles).ToArray();
-                if (checkBox3.Checked)
+            }
+            if (checkBox3.Checked)
+            {
+                string[] phpfiles = Directory.GetFiles(folderPath, "*.php", SearchOption.AllDirectories);
+                if (files == null)
                 {
-                    string[] phpfiles = Directory.GetFiles(folderPath, "*.php", SearchOption.AllDirectories);
-                    files = files.Concat(phpfiles).ToArray();
-                    if (checkBox4.Checked)
-                    {
-                        string[] jspfiles = Directory.GetFiles(folderPath, "*.jsp", SearchOption.AllDirectories);
-                        files = files.Concat(jspfiles).ToArray();
-                    }
+                    files = phpfiles;
                 }
-                if (checkBox1.Checked)
+                else { files = files.Concat(phpfiles).ToArray(); }
+            }
+            if (checkBox4.Checked)
+            {
+                string[] jspfiles = Directory.GetFiles(folderPath, "*.jsp", SearchOption.AllDirectories);
+                if (files == null)
                 {
-                    foreach (string file in files)
-                    {
-                        richTextBox1.AppendText("[DEBUG] [文件遍历] " + file + "\n");
-                        richTextBox1.SelectionStart = richTextBox1.Text.Length;
-                    }
+                    files = jspfiles;
+                }
+                else { files = files.Concat(jspfiles).ToArray(); }
+                
+            }
+            if (checkBox1.Checked)
+            {
+                foreach (string file in files)
+                {
+                    richTextBox1.AppendText("[DEBUG] [文件遍历] " + file + "\n");
+                    richTextBox1.SelectionStart = richTextBox1.Text.Length;
                 }
             }
-            
             return files;
         }
         private void button1_Click(object sender, EventArgs e)
