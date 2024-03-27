@@ -30,6 +30,10 @@
 **例如：** HTTP 404&<script>parent.location.href='/admin/login.aspx'</script> （此处将过滤404的结果以及通过script跳转login.aspx的结果）
 
 ## 更新
+2024年03月27日
+  1.修复除aspx外其他后缀不可用的情况
+  2.修复了debug问题
+
 2024年03月24日
   1. 仓库公开
   
